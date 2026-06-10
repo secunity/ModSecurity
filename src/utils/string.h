@@ -82,7 +82,7 @@ inline std::string ascTime(const time_t *t) {
 
 inline std::string iso8601Time(const time_t *t) {
     struct tm timeinfo;
-#if defined(_WIN32)
+#ifdef WIN32
     gmtime_s(&timeinfo, t);
 #else
     gmtime_r(t, &timeinfo);
