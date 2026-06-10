@@ -1571,7 +1571,7 @@ std::string Transaction::toJSON(int parts) {
     size_t len;
     yajl_gen g;
     std::string log;
-    std::string ts = utils::string::ascTime(&m_timeStamp);
+    std::string ts = utils::string::iso8601Time(&m_timeStamp);
     std::string uniqueId = UniqueId::uniqueId();
 
     g = yajl_gen_alloc(NULL);

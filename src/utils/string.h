@@ -80,6 +80,20 @@ inline std::string ascTime(const time_t *t) {
 }
 
 
+inline std::string iso8601Time(const time_t *t) {
+    struct tm timeinfo;
+#ifdef WIN32
+    gmtime_s(&timeinfo, t);
+#else
+    gmtime_r(t, &timeinfo);
+#endif
+    char tstr[std::size("yyyy-mm-ddThh:mm:ssZ")];
+    /* ISO-8601 UTC: YYYY-MM-DDThh:mm:ssZ. */
+    strftime(tstr, std::size(tstr), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+    return tstr;
+}
+
+
 inline std::string dash_if_empty(const std::string *str) {
     if (str == nullptr || str->empty()) {
         return "-";
