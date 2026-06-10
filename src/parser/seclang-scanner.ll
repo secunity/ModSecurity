@@ -100,6 +100,7 @@ ACTION_CTL_REQUEST_BODY_ACCESS                  (?i:ctl:requestBodyAccess)
 ACTION_CTL_RULE_ENGINE                          (?i:ctl:ruleEngine)
 ACTION_CTL_RULE_REMOVE_BY_TAG                   (?i:ctl:ruleRemoveByTag)
 ACTION_CTL_RULE_REMOVE_BY_ID                    (?i:ctl:ruleRemoveById)
+ACTION_CTL_REMOVE_SCORE_BY_ID                   (?i:ctl:removeScoreById)
 ACTION_CTL_RULE_REMOVE_TARGET_BY_ID             (?i:ctl:ruleRemoveTargetById)
 ACTION_CTL_RULE_REMOVE_TARGET_BY_TAG            (?i:ctl:ruleRemoveTargetByTag)
 ACTION_DENY                                     (?i:deny)
@@ -398,6 +399,8 @@ CONFIG_SEC_UPDATE_TARGET_BY_TAG         (?i:SecRuleUpdateTargetByTag)
 CONFIG_SEC_UPDATE_TARGET_BY_MSG         (?i:SecRuleUpdateTargetByMsg)
 CONFIG_SEC_UPDATE_TARGET_BY_ID          (?i:SecRuleUpdateTargetById)
 CONFIG_SEC_UPDATE_ACTION_BY_ID          (?i:SecRuleUpdateActionById)
+CONFIG_SEC_REMOVE_SCORE_BY_ID           (?i:SecRemoveScoreById)
+CONFIG_SEC_REMOVE_SCORE_BY_TAG          (?i:SecRemoveScoreByTag)
 CONFIG_UPDLOAD_KEEP_FILES               (?i:SecUploadKeepFiles)
 CONFIG_UPDLOAD_SAVE_TMP_FILES           (?i:SecTmpSaveUploadedFiles)
 CONFIG_UPLOAD_DIR                       (?i:SecUploadDir)
@@ -550,6 +553,7 @@ EQUALS_MINUS                            (?i:=\-)
 {ACTION_CTL_REQUEST_BODY_ACCESS}=                                       { return p::make_ACTION_CTL_REQUEST_BODY_ACCESS(yytext, *driver.loc.back()); }
 {ACTION_CTL_RULE_ENGINE}=                                               { return p::make_ACTION_CTL_RULE_ENGINE(*driver.loc.back()); }
 {ACTION_CTL_RULE_REMOVE_BY_ID}[=]{REMOVE_RULE_BY}                       { return p::make_ACTION_CTL_RULE_REMOVE_BY_ID(yytext, *driver.loc.back()); }
+{ACTION_CTL_REMOVE_SCORE_BY_ID}[=]{REMOVE_RULE_BY}                      { return p::make_ACTION_CTL_REMOVE_SCORE_BY_ID(yytext, *driver.loc.back()); }
 {ACTION_CTL_RULE_REMOVE_BY_TAG}[=]{REMOVE_RULE_BY}                      { return p::make_ACTION_CTL_RULE_REMOVE_BY_TAG(yytext, *driver.loc.back()); }
 {ACTION_CTL_RULE_REMOVE_TARGET_BY_ID}[=]{REMOVE_RULE_BY}                { return p::make_ACTION_CTL_RULE_REMOVE_TARGET_BY_ID(yytext, *driver.loc.back()); }
 {ACTION_CTL_RULE_REMOVE_TARGET_BY_TAG}[=]{REMOVE_RULE_BY}               { return p::make_ACTION_CTL_RULE_REMOVE_TARGET_BY_TAG(yytext, *driver.loc.back()); }
@@ -809,6 +813,9 @@ EQUALS_MINUS                            (?i:=\-)
 {CONFIG_SEC_UPDATE_TARGET_BY_ID}[ \t]+{FREE_TEXT_SPACE_COMMA_QUOTE}     { state_variable_from = 1; BEGIN(TRANSACTION_TO_VARIABLE); return p::make_CONFIG_SEC_RULE_UPDATE_TARGET_BY_ID(parserSanitizer(find_separator(yytext)), *driver.loc.back()); }
 {CONFIG_SEC_UPDATE_ACTION_BY_ID}[ \t]+["]{FREE_TEXT_NEW_LINE}["]        { BEGIN(TRANSACTION_FROM_OPERATOR_TO_ACTIONS); return p::make_CONFIG_SEC_RULE_UPDATE_ACTION_BY_ID(parserSanitizer(find_separator(yytext)), *driver.loc.back()); }
 {CONFIG_SEC_UPDATE_ACTION_BY_ID}[ \t]+{FREE_TEXT_SPACE_COMMA_QUOTE}     { BEGIN(TRANSACTION_FROM_OPERATOR_TO_ACTIONS); return p::make_CONFIG_SEC_RULE_UPDATE_ACTION_BY_ID(parserSanitizer(find_separator(yytext)), *driver.loc.back()); }
+{CONFIG_SEC_REMOVE_SCORE_BY_ID}[ \t]+{FREE_TEXT_NEW_LINE}               { return p::make_CONFIG_SEC_REMOVE_SCORE_BY_ID(parserSanitizer(find_separator(yytext)), *driver.loc.back()); }
+{CONFIG_SEC_REMOVE_SCORE_BY_TAG}[ \t]+["]{FREE_TEXT_NEW_LINE}["]        { return p::make_CONFIG_SEC_REMOVE_SCORE_BY_TAG(parserSanitizer(find_separator(yytext)), *driver.loc.back()); }
+{CONFIG_SEC_REMOVE_SCORE_BY_TAG}[ \t]+{FREE_TEXT_NEW_LINE}              { return p::make_CONFIG_SEC_REMOVE_SCORE_BY_TAG(parserSanitizer(find_separator(yytext)), *driver.loc.back()); }
 {CONFIG_UPDLOAD_KEEP_FILES}                                             { return p::make_CONFIG_UPDLOAD_KEEP_FILES(yytext, *driver.loc.back()); }
 {CONFIG_UPDLOAD_SAVE_TMP_FILES}                                         { return p::make_CONFIG_UPDLOAD_SAVE_TMP_FILES(yytext, *driver.loc.back()); }
 {CONFIG_UPLOAD_DIR}[ \t]+{CONFIG_VALUE_PATH}                            { return p::make_CONFIG_UPLOAD_DIR(parserSanitizer(find_separator(yytext)), *driver.loc.back()); }

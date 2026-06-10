@@ -24,6 +24,7 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -514,6 +515,12 @@ class Transaction : public TransactionAnchoredVariables, public TransactionSecMa
     std::list<std::pair<int, int> > m_ruleRemoveByIdRange;
 
     /**
+     * Rule ids whose `score' setvars must be skipped for this transaction,
+     * populated by the ctl:removeScoreById action.
+     */
+    std::list<double> m_remove_score_by_id;
+
+    /**
      *
      */
     std::list<std::string> m_ruleRemoveByTag;
@@ -553,6 +560,13 @@ class Transaction : public TransactionAnchoredVariables, public TransactionSecMa
      * auditlogs.
      */
     std::list<modsecurity::RuleMessage> m_rulesMessages;
+
+    /**
+     * Ids of rules that had score setvars skipped by the SecRemoveScore
+     * directives or the ctl:removeScoreById action, so the JSON audit log can
+     * report them.
+     */
+    std::set<int64_t> m_removedScores;
 
     /**
      * Holds the request body, in case of any.
