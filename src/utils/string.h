@@ -88,8 +88,8 @@ inline std::string iso8601Time(const time_t *t) {
     gmtime_r(t, &timeinfo);
 #endif
     char tstr[std::size("yyyy-mm-ddThh:mm:ssZ")];
-    /* %F == %Y-%m-%d, %T == %H:%M:%S; trailing Z marks UTC. */
-    strftime(tstr, std::size(tstr), "%FT%TZ", &timeinfo);
+    /* ISO-8601 UTC: YYYY-MM-DDThh:mm:ssZ. */
+    strftime(tstr, std::size(tstr), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
     return tstr;
 }
 
