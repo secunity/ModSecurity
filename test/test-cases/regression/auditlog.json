@@ -222,7 +222,7 @@
       ]
     },
     "expected": {
-      "audit_log": "{\"transaction\":{\"client_ip\":\"200.249.12.31\",\"time_stamp\":\"\\S{3} \\S{3} [ \\d]\\d \\d{2}:\\d{2}:\\d{2} \\d{4}\"",
+      "audit_log": "{\"transaction\":{\"client_ip\":\"200.249.12.31\",\"time_stamp\":\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z\"",
       "http_code": 403
     },
     "rules": [
