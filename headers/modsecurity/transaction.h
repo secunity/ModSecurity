@@ -392,6 +392,11 @@ class Transaction : public TransactionAnchoredVariables, public TransactionSecMa
     int processLogging();
     int updateStatusCode(int status);
 
+    int setTransactionVariable(const std::string& key,
+        const std::string& value);
+    int setTransactionVariable(const unsigned char *key, size_t len_key,
+        const unsigned char *value, size_t len_value);
+
     int setRequestHostName(const std::string& hostname);
 
     bool intervention(ModSecurityIntervention *it);
@@ -768,6 +773,14 @@ size_t msc_get_rules_messages_size(const Transaction *transaction);
 /** @ingroup ModSecurity_C_API */
 size_t msc_get_rules_messages_rule_ids(const Transaction *transaction,
     int64_t *ids, size_t ids_len);
+
+/** @ingroup ModSecurity_C_API */
+int msc_set_tx_var(Transaction *transaction, const unsigned char *key,
+    const unsigned char *value);
+
+/** @ingroup ModSecurity_C_API */
+int msc_set_n_tx_var(Transaction *transaction, const unsigned char *key,
+    size_t len_key, const unsigned char *value, size_t len_value);
 
 #ifdef __cplusplus
 }

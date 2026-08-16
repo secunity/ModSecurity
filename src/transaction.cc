@@ -1816,6 +1816,76 @@ int Transaction::updateStatusCode(int code) {
 
 
 /**
+ * @name    setTransactionVariable
+ * @brief   Set a variable in the TX (transaction) collection.
+ *
+ * Stores @p value under @p key in the TX collection of this transaction,
+ * exactly as the `setvar:tx.<key>=<value>` action would. This allows a
+ * connector to hand host-provided data (e.g. a TLS fingerprint) to the
+ * rules engine, where it is then reachable as `TX:<key>`.
+ *
+ * An existing value for @p key is overwritten.
+ *
+ * @note Key lookups in the TX collection are case insensitive, so `TX:foo`
+ *       and `TX:FOO` refer to the same variable.
+ * @note This must be called before the phase whose rules should observe the
+ *       variable (e.g. before processRequestHeaders() for phase 1 rules).
+ *
+ * @param key   Variable name, without the "TX:" prefix.
+ * @param value Variable value.
+ *
+ * @returns If the operation was successful or not.
+ * @retval 1 Operation was successful.
+ * @retval 0 Operation failed.
+ *
+ */
+int Transaction::setTransactionVariable(const std::string& key,
+    const std::string& value) {
+    if (key.empty()) {
+        return 0;
+    }
+
+    ms_dbg(8, "Setting TX variable: " + key + " with value: " + value);
+    m_collections.m_tx_collection->storeOrUpdateFirst(key, value);
+
+    return 1;
+}
+
+
+/**
+ * @name    setTransactionVariable
+ * @brief   Set a variable in the TX (transaction) collection.
+ *
+ * Do not expect a NULL terminated string, instead it expects the string and
+ * the string size, for the value and key.
+ *
+ * @param key     Variable name, without the "TX:" prefix.
+ * @param len_key Variable name size.
+ * @param value   Variable value.
+ * @param len_value Variable value size.
+ *
+ * @returns If the operation was successful or not.
+ * @retval 1 Operation was successful.
+ * @retval 0 Operation failed.
+ *
+ */
+int Transaction::setTransactionVariable(const unsigned char *key,
+    size_t len_key, const unsigned char *value, size_t len_value) {
+    if (key == NULL || value == NULL) {
+        return 0;
+    }
+
+    std::string keys;
+    std::string values;
+
+    keys.assign(reinterpret_cast<const char *>(key), len_key);
+    values.assign(reinterpret_cast<const char *>(value), len_value);
+
+    return this->setTransactionVariable(keys, values);
+}
+
+
+/**
  * @name    msc_new_transaction
  * @brief   Create a new transaction for a given configuration and ModSecurity core.
  *
@@ -2397,6 +2467,67 @@ extern "C" size_t msc_get_rules_messages_rule_ids(const Transaction *transaction
         ids[written++] = msg.m_rule.m_ruleId;
     }
     return written;
+}
+
+
+/**
+ * @name    msc_set_tx_var
+ * @brief   Set a variable in the TX (transaction) collection.
+ *
+ * Stores a value in the TX collection, making it available to the rules as
+ * `TX:<key>`, exactly as `setvar:tx.<key>=<value>` would.
+ *
+ * @note This function expects a NULL terminated string, for both: key and
+ *       value.
+ * @note Must be called before the phase whose rules should observe the
+ *       variable (e.g. before msc_process_request_headers() for phase 1).
+ *
+ * @param transaction ModSecurity transaction.
+ * @param key         Variable name, without the "TX:" prefix.
+ * @param value       Variable value.
+ *
+ * @returns If the operation was successful or not.
+ * @retval 1 Operation was successful.
+ * @retval 0 Operation failed.
+ *
+ */
+extern "C" int msc_set_tx_var(Transaction *transaction,
+    const unsigned char *key, const unsigned char *value) {
+    if (transaction == nullptr || key == nullptr || value == nullptr) {
+        return 0;
+    }
+    return transaction->setTransactionVariable(key,
+        strlen(reinterpret_cast<const char *>(key)),
+        value,
+        strlen(reinterpret_cast<const char *>(value)));
+}
+
+
+/**
+ * @name    msc_set_n_tx_var
+ * @brief   Set a variable in the TX (transaction) collection.
+ *
+ * Do not expect a NULL terminated string, instead it expects the string and
+ * the string size, for the value and key.
+ *
+ * @param transaction ModSecurity transaction.
+ * @param key         Variable name, without the "TX:" prefix.
+ * @param len_key     Variable name size.
+ * @param value       Variable value.
+ * @param len_value   Variable value size.
+ *
+ * @returns If the operation was successful or not.
+ * @retval 1 Operation was successful.
+ * @retval 0 Operation failed.
+ *
+ */
+extern "C" int msc_set_n_tx_var(Transaction *transaction,
+    const unsigned char *key, size_t len_key,
+    const unsigned char *value, size_t len_value) {
+    if (transaction == nullptr) {
+        return 0;
+    }
+    return transaction->setTransactionVariable(key, len_key, value, len_value);
 }
 
 
